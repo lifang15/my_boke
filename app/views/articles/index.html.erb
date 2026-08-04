@@ -1,0 +1,21 @@
+我的博客
+<%= link_to '发布新文章', new_article_path %>
+
+  <%= form_with url: articles_path, method: :get, local: true do |form| %>
+    <%= form.text_field :query, value: params[:query], placeholder: "请输入关键字搜索..." %>
+    <%= form.submit "搜索" %>
+    
+<% if params[:query].present? %>
+   <%= link_to "清空搜索", articles_path %>
+    <% end %>
+  <% end %>
+
+<% if @articles.any? %>
+   <% @articles.each do |article| %>
+      <%= link_to article.title, article %>
+      <%= truncate(article.content, length: 100) %>
+      发布于 <%= article.created_at.strftime("%Y-%m-%d %H:%M") %>
+  <% end %>
+<% else %>
+  没有找到相关文章。
+<% end %>

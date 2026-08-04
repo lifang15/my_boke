@@ -1,0 +1,13 @@
+<%= form_with(model: article) do |form| %>
+  <% if article.errors.any? %>
+      提交失败，存在以下错误：
+        <% article.errors.full_messages.each do |message| %>
+          <%= message %>
+        <% end %> 
+  <% end %>
+    <%= form.label :title, "文章标题" %>
+    <%= form.text_field :title %>
+    <%= form.label :content, "文章内容" %>
+    <%= form.text_area :content, rows: 10 %>
+    <%= form.submit "保存文章" %>
+<% end %>
