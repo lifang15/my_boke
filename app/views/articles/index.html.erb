@@ -1,21 +1,205 @@
-我的博客
-<%= link_to '发布新文章', new_article_path %>
+<style>
+  .blog-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
 
-  <%= form_with url: articles_path, method: :get, local: true do |form| %>
-    <%= form.text_field :query, value: params[:query], placeholder: "请输入关键字搜索..." %>
-    <%= form.submit "搜索" %>
-    
-<% if params[:query].present? %>
-   <%= link_to "清空搜索", articles_path %>
+  .blog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .blog-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1a202c;
+    margin: 0;
+  }
+
+  .btn-new {
+    background-color: #38a169; 
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  .btn-new:hover { background-color: #2f855a; }
+  .btn-new:active { transform: scale(0.98); }
+
+  .search-container {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .search-form {
+    display: flex;
+    gap: 12px;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1.5px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+  }
+
+  .btn-search {
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    padding: 0 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-search:hover { background-color: #2b6cb0; }
+
+  .btn-clear {
+    display: inline-flex;
+    align-items: center;
+    color: #718096;
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 0 8px;
+  }
+
+  .btn-clear:hover {
+    color: #2d3748;
+    text-decoration: underline;
+  }
+
+  .article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .article-card-link {
+    text-decoration: none; 
+    display: block;        
+    color: inherit;        
+  }
+
+  .article-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.2s ease;
+    cursor: pointer; 
+  }
+
+  .article-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px); 
+    border-color: #cbd5e0;
+  }
+
+  .article-card-link:hover .article-title-text {
+    color: #3182ce;
+  }
+
+  .article-title-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+    display: block;
+    transition: color 0.2s;
+  }
+
+  .article-meta {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-bottom: 12px;
+  }
+
+  .article-summary {
+    color: #4a5568;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f7fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    color: #718096;
+  }
+</style>
+
+<div class="blog-container">
+  
+  <div class="blog-header">
+    <h1 class="blog-title">我的博客</h1>
+    <%= link_to '发布新文章', new_article_path, class: "btn-new" %>
+  </div>
+
+  <div class="search-container">
+    <%= form_with url: articles_path, method: :get, local: true, class: "search-form" do |form| %>
+      <%= form.text_field :query, value: params[:query], placeholder: "请输入关键字搜索...", class: "search-input" %>
+      <%= form.submit "搜索", class: "btn-search" %>
+      
+      <% if params[:query].present? %>
+        <%= link_to "清空", articles_path, class: "btn-clear" %>
+      <% end %>
     <% end %>
-  <% end %>
+  </div>
 
-<% if @articles.any? %>
-   <% @articles.each do |article| %>
-      <%= link_to article.title, article %>
-      <%= truncate(article.content, length: 100) %>
-      发布于 <%= article.created_at.strftime("%Y-%m-%d %H:%M") %>
-  <% end %>
-<% else %>
-  没有找到相关文章。
-<% end %>
+  <div class="article-list">
+    <% if @articles.any? %>
+      <% @articles.each do |article| %>
+        
+        <%= link_to article_path(article), class: "article-card-link" do %>
+          <div class="article-card">
+            
+            <div class="article-title-text">
+              <%= article.title %>
+            </div>
+            
+            <div class="article-meta">
+              发布于 <%= article.created_at.strftime("%Y-%m-%d %H:%M") %>
+            </div>
+            
+            <div class="article-summary">
+              <%= truncate(strip_tags(article.content.to_s), length: 120) %>
+            </div>
+            
+          </div>
+        <% end %>
+
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <h3 style="margin-top: 0;">没有找到相关文章</h3>
+        <p>换个关键词试试，或者现在就发布一篇新文章吧！</p>
+      </div>
+    <% end %>
+  </div>
+
+</div>

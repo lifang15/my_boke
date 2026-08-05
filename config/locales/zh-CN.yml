@@ -1,0 +1,13 @@
+zh-CN:
+  activerecord:
+    models:
+      article: "文章"
+    attributes:
+      article:
+        title: "标题"
+        content: "内容"
+        rich_content: "正文"
+    errors:
+      messages:
+        blank: "不能为空"
+        present: "必须为空"

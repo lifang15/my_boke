@@ -1,7 +1,245 @@
-<%= @article.title %>
-<%= simple_format(@article.content) %>
-  <%= link_to '编辑文章', edit_article_path(@article) %> |
-  <%= link_to '返回列表', articles_path %> |
-<%= button_to "删除文章", article_path(@article), 
+<style>
+  .article-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #2d3748;
+  }
+
+  .article-header {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .article-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .article-actions {
+    display: flex;
+    gap: 16px;
+    font-size: 0.95rem;
+  }
+
+  .article-actions a {
+    color: #718096;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .article-actions a:hover {
+    color: #3182ce;
+  }
+
+  .article-actions .action-delete {
+    color: #e53e3e;
+  }
+
+  .article-actions .action-delete:hover {
+    color: #c53030;
+  }
+
+  .article-body {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #4a5568;
+    margin-bottom: 60px;
+  }
+
+  .comments-section {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  .comments-header {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #2d3748;
+  }
+
+  .comment-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .comment-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #2d3748;
+  }
+
+  .comment-date {
+    font-size: 0.85rem;
+    color: #a0aec0;
+  }
+
+  .comment-text {
+    font-size: 1rem;
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .btn-delete-comment {
+    background: none;
+    border: none;
+    color: #fc8181;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+  }
+
+  .btn-delete-comment:hover {
+    color: #e53e3e;
+    text-decoration: underline;
+  }
+
+  .comment-form-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 32px;
+  }
+
+  .comment-form-section h3 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #4a5568;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+  }
+
+  .btn-submit {
+    background-color: #3182ce;
+    color: white;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-submit:hover {
+    background-color: #2b6cb0;
+  }
+</style>
+
+<div class="article-container">
+  
+  <div class="article-header">
+    <h1 class="article-title"><%= @article.title %></h1>
+    <div class="article-actions">
+      <%= link_to '✏️ 编辑文章', edit_article_path(@article) %>
+      <%= link_to '🔙 返回列表', articles_path %>
+      <%= button_to "🗑️ 删除文章", article_path(@article), 
               method: :delete, 
-              onclick: "return confirm('确定要删除这篇文章吗？');" %>
+              form: { data: { turbo_confirm: '确定要删除吗？' } },
+              class: "action-delete",
+              style: "background: transparent; border: none; font-size: inherit; cursor: pointer; padding: 0; margin: 0; display: inline;" %>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <h3>文章内容：</h3>
+    <%= simple_format(@article.content) %>
+  </div>
+
+  <div class="comments-section">
+    <h2 class="comments-header">💬 评论区 (<%= @article.comments.count %>)</h2>
+
+    <% if @article.comments.any? %>
+      <% @article.comments.each do |comment| %>
+        <% next if comment.new_record? %>
+        
+        <div class="comment-card">
+          <div class="comment-meta">
+            <div class="comment-author"><%= comment.commenter %></div>
+            <div class="comment-date"><%= comment.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+          </div>
+          
+          <div class="comment-text">
+            <%= comment.body %>
+          </div>
+          
+          <%= button_to "删除评论", 
+                        article_comment_path(@article, comment), 
+                        method: :delete, 
+                        class: "btn-delete-comment",
+                        onclick: "return confirm('确定要删除这条评论吗？');" %>
+        </div>
+      <% end %>
+    <% else %>
+      <p style="color: #a0aec0; text-align: center; padding: 20px 0;">暂无评论，快来抢沙发吧！</p>
+    <% end %>
+  </div>
+
+  <div class="comment-form-section">
+    <h3>✨ 发表评论</h3>
+    <%= form_with(model: [ @article, @article.comments.build ]) do |form| %>
+      
+      <div class="form-group">
+        <%= form.label :commenter, "您的昵称", class: "form-label" %>
+        <%= form.text_field :commenter, required: true, class: "form-control", placeholder: "怎么称呼您？" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :body, "评论内容", class: "form-label" %>
+        <%= form.text_area :body, rows: 4, required: true, class: "form-control", placeholder: "写点什么吧..." %>
+      </div>
+
+      <div>
+        <%= form.submit "提交评论", class: "btn-submit" %>
+      </div>
+      
+    <% end %>
+  </div>
+
+</div>

@@ -2,7 +2,7 @@ class ArticlesController < ApplicationController
   before_action :set_article, only: [:show, :edit, :update, :destroy]
 
   def index
-  @articles = Article.search_by_keyword(params[:query]).order(created_at: :desc)
+    @articles = Article.search_by_keyword(params[:query]).order(created_at: :desc)
   end
 
   def show
@@ -34,17 +34,16 @@ class ArticlesController < ApplicationController
 
   def destroy
     @article.destroy
-    redirect_to articles_path, notice: '文章已删除！'
+    redirect_to articles_path, notice: "文章已成功删除！" 
   end
 
   private
 
- 
   def set_article
     @article = Article.find(params[:id])
   end 
 
   def article_params
-    params.require(:article).permit(:title, :content)
+    params.require(:article).permit(:title, :cover_image, :rich_content)
   end
 end
