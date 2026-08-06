@@ -1,205 +1,78 @@
-<style>
-  .blog-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 0 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
+<main class="blog-container">
+  <header class="blog-header">
+    <div>
+      <span class="page-eyebrow">MY JOURNAL</span>
+      <h1 class="blog-title">慢慢写，慢慢生活</h1>
+      <p class="blog-intro">收藏微小而闪亮的日常，也记录每一次认真思考。</p>
+    </div>
+    <%= link_to "发布新文章", new_article_path, class: "btn-new" %>
+  </header>
 
-  .blog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-
-  .blog-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #1a202c;
-    margin: 0;
-  }
-
-  .btn-new {
-    background-color: #38a169; 
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: background-color 0.2s, transform 0.1s;
-  }
-
-  .btn-new:hover { background-color: #2f855a; }
-  .btn-new:active { transform: scale(0.98); }
-
-  .search-container {
-    background: #f7fafc;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 40px;
-    border: 1px solid #e2e8f0;
-  }
-
-  .search-form {
-    display: flex;
-    gap: 12px;
-  }
-
-  .search-input {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1.5px solid #cbd5e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.2s;
-  }
-
-  .search-input:focus {
-    border-color: #3182ce;
-    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
-  }
-
-  .btn-search {
-    background-color: #3182ce;
-    color: white;
-    border: none;
-    padding: 0 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .btn-search:hover { background-color: #2b6cb0; }
-
-  .btn-clear {
-    display: inline-flex;
-    align-items: center;
-    color: #718096;
-    text-decoration: none;
-    font-size: 0.95rem;
-    padding: 0 8px;
-  }
-
-  .btn-clear:hover {
-    color: #2d3748;
-    text-decoration: underline;
-  }
-
-  .article-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .article-card-link {
-    text-decoration: none; 
-    display: block;        
-    color: inherit;        
-  }
-
-  .article-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 24px;
-    transition: all 0.2s ease;
-    cursor: pointer; 
-  }
-
-  .article-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px); 
-    border-color: #cbd5e0;
-  }
-
-  .article-card-link:hover .article-title-text {
-    color: #3182ce;
-  }
-
-  .article-title-text {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 8px;
-    display: block;
-    transition: color 0.2s;
-  }
-
-  .article-meta {
-    font-size: 0.85rem;
-    color: #a0aec0;
-    margin-bottom: 12px;
-  }
-
-  .article-summary {
-    color: #4a5568;
-    line-height: 1.6;
-    margin: 0;
-    font-size: 1rem;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    background: #f7fafc;
-    border: 2px dashed #e2e8f0;
-    border-radius: 12px;
-    color: #718096;
-  }
-</style>
-
-<div class="blog-container">
-  
-  <div class="blog-header">
-    <h1 class="blog-title">我的博客</h1>
-    <%= link_to '发布新文章', new_article_path, class: "btn-new" %>
-  </div>
-
-  <div class="search-container">
+  <section class="search-container" aria-label="搜索文章">
     <%= form_with url: articles_path, method: :get, local: true, class: "search-form" do |form| %>
-      <%= form.text_field :query, value: params[:query], placeholder: "请输入关键字搜索...", class: "search-input" %>
+      <%= form.text_field :query, value: params[:query], placeholder: "输入关键词搜索文章", class: "search-input" %>
       <%= form.submit "搜索", class: "btn-search" %>
-      
-      <% if params[:query].present? %>
-        <%= link_to "清空", articles_path, class: "btn-clear" %>
-      <% end %>
+      <%= link_to "清空", articles_path, class: "btn-clear" if params[:query].present? %>
     <% end %>
-  </div>
+  </section>
 
-  <div class="article-list">
+  <section class="article-list" aria-label="文章列表">
     <% if @articles.any? %>
       <% @articles.each do |article| %>
-        
-        <%= link_to article_path(article), class: "article-card-link" do %>
-          <div class="article-card">
-            
-            <div class="article-title-text">
-              <%= article.title %>
-            </div>
-            
-            <div class="article-meta">
-              发布于 <%= article.created_at.strftime("%Y-%m-%d %H:%M") %>
-            </div>
-            
-            <div class="article-summary">
-              <%= truncate(strip_tags(article.content.to_s), length: 120) %>
-            </div>
-            
-          </div>
-        <% end %>
+        <% preview_image = article_preview_image(article) %>
+        <% summary = article.rich_content.to_plain_text.strip.presence || article.content.to_s.strip %>
 
+        <%= link_to article_path(article), class: "article-card-link" do %>
+          <article class="article-card <%= "article-card--without-image" unless preview_image %>">
+            <% if preview_image %>
+              <div class="article-card-media">
+                <%= image_tag preview_image, alt: article.title, loading: "lazy" %>
+              </div>
+            <% end %>
+
+            <div class="article-card-content">
+              <div class="article-title-text"><%= article.title %></div>
+              <div class="article-meta">发布于 <%= article.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+              <% if summary.present? %>
+                <p class="article-summary"><%= truncate(summary, length: 120) %></p>
+              <% elsif preview_image %>
+                <p class="article-summary article-summary--image">图片文章</p>
+              <% end %>
+            </div>
+          </article>
+        <% end %>
       <% end %>
     <% else %>
       <div class="empty-state">
-        <h3 style="margin-top: 0;">没有找到相关文章</h3>
-        <p>换个关键词试试，或者现在就发布一篇新文章吧！</p>
+        <h2>没有找到相关文章</h2>
+        <p>换个关键词试试，或者现在发布一篇新文章。</p>
       </div>
     <% end %>
-  </div>
+  </section>
 
-</div>
+  <% if @total_pages > 1 %>
+    <nav class="pagination" aria-label="文章分页">
+      <% if @page > 1 %>
+        <%= link_to "上一页", articles_path(query: params[:query], page: @page - 1), class: "pagination-link pagination-direction" %>
+      <% else %>
+        <span class="pagination-link pagination-direction is-disabled" aria-disabled="true">上一页</span>
+      <% end %>
+
+      <div class="pagination-pages">
+        <% (1..@total_pages).each do |page_number| %>
+          <% if page_number == @page %>
+            <span class="pagination-link is-current" aria-current="page"><%= page_number %></span>
+          <% else %>
+            <%= link_to page_number, articles_path(query: params[:query], page: page_number), class: "pagination-link" %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if @page < @total_pages %>
+        <%= link_to "下一页", articles_path(query: params[:query], page: @page + 1), class: "pagination-link pagination-direction" %>
+      <% else %>
+        <span class="pagination-link pagination-direction is-disabled" aria-disabled="true">下一页</span>
+      <% end %>
+    </nav>
+  <% end %>
+</main>

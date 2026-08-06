@@ -19,10 +19,29 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "actiontext", "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
   </head>
 
   <body>
+    <div class="site-background" aria-hidden="true"></div>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <%= link_to root_path, class: "site-brand" do %>
+          <span class="site-brand-mark">叶</span>
+          <span>
+            <strong>拾光札记</strong>
+            <small>把日子写成温柔的故事</small>
+          </span>
+        <% end %>
+
+        <nav class="site-nav" aria-label="主导航">
+          <%= link_to "文章", articles_path, class: "site-nav-link" %>
+          <%= link_to "写一篇", new_article_path, class: "site-nav-link site-nav-primary" %>
+        </nav>
+      </div>
+    </header>
+
     <%= yield %>
   </body>
 </html>
