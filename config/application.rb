@@ -26,6 +26,7 @@ module MyBoke
     config.active_record.default_timezone = :utc
     # config.eager_load_paths << Rails.root.join("extras")
     config.i18n.default_locale = :"zh-CN"
-    config.i18n.available_locales = [:"zh-CN", :en]
+    config.i18n.available_locales = [ :"zh-CN", :en ]
+    config.x.blog = config_for(:blog)
   end
 end

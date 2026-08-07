@@ -79,6 +79,9 @@ button, input, textarea { font: inherit; }
 .search-input:focus { border-color: rgba(82,116,97,.45); box-shadow: 0 0 0 4px rgba(111,148,128,.12); }
 .btn-search { padding: 0 22px; color: #fff; background: var(--sage); border: 0; border-radius: 12px; cursor: pointer; }
 .btn-clear { align-self: center; padding: 0 9px; color: var(--muted); text-decoration: none; }
+.article-list-summary { display: flex; align-items: center; gap: 7px; margin: -8px 5px 16px; color: #6f7f76; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; }
+.article-list-summary-icon { color: var(--sage); font-size: 12px; }
+.article-list-summary strong { color: var(--sage-deep); font-size: 15px; }
 .article-list { display: grid; gap: 18px; }
 .article-card-link { color: inherit; text-decoration: none; }
 .article-card { display: grid; grid-template-columns: 220px minmax(0,1fr); min-height: 154px; overflow: hidden; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(20px) saturate(125%); transition: transform .25s ease, box-shadow .25s ease, background .25s ease; }
@@ -162,6 +165,24 @@ trix-editor.article-editor { display: block; min-height: 270px; padding: 17px; f
 .comment-message-field textarea { min-height: 105px; resize: vertical; }
 
 @media (max-width: 680px) {
+  /* Mobile GPUs render large backdrop-filter layers slowly. Keep the glass
+     appearance with a more opaque background and skip the expensive blur. */
+  .search-container,
+  .article-card,
+  .empty-state,
+  .article-sheet,
+  .comments-section,
+  .pagination-link,
+  .form-card { backdrop-filter: none; }
+  .search-container,
+  .article-card,
+  .article-sheet,
+  .comments-section,
+  .form-card { background: rgba(255,255,255,.9); }
+  /* Avoid downloading the full-size decorative background on mobile data. */
+  .site-background {
+    background-image: linear-gradient(145deg, #edf5ef, #dceae0 55%, #f4f1e8);
+  }
   .site-header { padding: 10px 12px; }
   .site-brand small { display: none; }
   .site-nav-link { padding: 8px 11px; }

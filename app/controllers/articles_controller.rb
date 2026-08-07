@@ -3,8 +3,14 @@ class ArticlesController < ApplicationController
 
   def index
     articles = Article.search_by_keyword(params[:query])
-    @per_page = 5
-    @total_pages = [ (articles.count.to_f / @per_page).ceil, 1 ].max
+    @per_page = Rails.configuration.x.blog.dig(
+      :pagination,
+      :web_per_page
+    ).to_i
+
+    @per_page = 5 unless @per_page.positive?
+    @total_count = articles.count
+    @total_pages = [ (@total_count.to_f / @per_page).ceil, 1 ].max
     @page = params[:page].to_i
     @page = 1 if @page < 1
     @page = @total_pages if @page > @total_pages
@@ -17,6 +23,26 @@ class ArticlesController < ApplicationController
   end
 
   def show
+    comments = @article.comments.order(created_at: :desc)
+    @comments_per_page = Rails.configuration.x.blog.dig(
+      :pagination,
+      :comments_per_page
+    ).to_i
+    @comments_per_page = 5 unless @comments_per_page.positive?
+
+    @comments_total_count = comments.count
+    @comments_total_pages = [
+      (@comments_total_count.to_f / @comments_per_page).ceil,
+      1
+    ].max
+
+    @comments_page = params[:comments_page].to_i
+    @comments_page = 1 if @comments_page < 1
+    @comments_page = @comments_total_pages if @comments_page > @comments_total_pages
+
+    @comments = comments.offset(
+      (@comments_page - 1) * @comments_per_page
+    ).limit(@comments_per_page)
   end
 
   def new
@@ -51,7 +77,10 @@ class ArticlesController < ApplicationController
   private
 
   def set_article
-    @article = Article.find(params[:id])
+    @article = Article.find_by(id: params[:id])
+    return if @article
+
+    redirect_to articles_path, alert: "文章不存在或已被删除。"
   end
 
   def article_params

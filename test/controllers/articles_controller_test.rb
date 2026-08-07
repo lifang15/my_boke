@@ -1,20 +1,56 @@
 require "test_helper"
 
 class ArticlesControllerTest < ActionDispatch::IntegrationTest
-  test "index paginates articles five at a time" do
-    7.times do |number|
-      Article.create!(title: "分页文章 #{number}", rich_content: "分页正文")
+  test "index paginates articles using configured page size" do
+    per_page = Rails.configuration.x.blog.dig(
+      :pagination,
+      :web_per_page
+    ).to_i
+
+    (per_page + 2).times do |number|
+      Article.create!(
+        title: "分页文章 #{number}",
+        rich_content: "分页正文"
+      )
     end
 
     get articles_path(page: 1)
+
     assert_response :success
-    assert_select ".article-card", count: 5
+    assert_select ".article-card", count: per_page
+    assert_select ".article-list-summary strong", text: Article.count.to_s
     assert_select ".pagination [aria-current='page']", text: "1"
 
     get articles_path(page: 2)
+
     assert_response :success
-    assert_select ".article-card", count: Article.count - 5
+    assert_select ".article-card", count: Article.count - per_page
     assert_select ".pagination [aria-current='page']", text: "2"
+  end
+
+  test "show paginates comments using configured page size" do
+    article = Article.create!(title: "评论分页文章", rich_content: "正文")
+    per_page = Rails.configuration.x.blog.dig(
+      :pagination,
+      :comments_per_page
+    ).to_i
+
+    (per_page + 2).times do |number|
+      article.comments.create!(commenter: "访客 #{number}", body: "评论 #{number}")
+    end
+
+    get article_path(article, comments_page: 1)
+
+    assert_response :success
+    assert_select ".comment-card", count: per_page
+    assert_select ".comments-pagination [aria-current='page']", text: "1"
+    assert_select ".section-heading h2 small", text: (per_page + 2).to_s
+
+    get article_path(article, comments_page: 2)
+
+    assert_response :success
+    assert_select ".comment-card", count: 2
+    assert_select ".comments-pagination [aria-current='page']", text: "2"
   end
 
   test "pagination keeps the current search query" do
@@ -93,5 +129,12 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
+  end
+
+  test "redirects to the list when an article no longer exists" do
+    get article_path(id: 999_999)
+
+    assert_redirected_to articles_path
+    assert_equal "文章不存在或已被删除。", flash[:alert]
   end
 end

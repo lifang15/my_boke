@@ -19,24 +19,27 @@
 
     <div class="article-body trix-content">
       <% if @article.cover_image.attached? %>
-        <%= image_tag @article.cover_image, alt: @article.title, class: "article-cover" %>
+        <%= image_tag article_cover_variant(@article),
+              alt: @article.title,
+              class: "article-cover",
+              decoding: "async",
+              fetchpriority: "high" %>
       <% end %>
       <%= @article.rich_content %>
     </div>
   </article>
 
-  <section class="comments-section">
+  <section class="comments-section" id="comments">
     <div class="section-heading">
       <div>
         <span class="page-eyebrow">CONVERSATION</span>
-        <h2>评论 <small><%= @article.comments.count %></small></h2>
+        <h2>评论 <small><%= @comments_total_count %></small></h2>
       </div>
     </div>
 
-    <% if @article.comments.any? %>
+    <% if @comments.any? %>
       <div class="comment-list">
-        <% @article.comments.each do |comment| %>
-          <% next if comment.new_record? %>
+        <% @comments.each do |comment| %>
           <article class="comment-card">
             <div class="comment-avatar"><%= comment.commenter.to_s.first&.upcase || "访" %></div>
             <div class="comment-content">
@@ -54,6 +57,38 @@
       </div>
     <% else %>
       <p class="comments-empty">这里还很安静，来留下第一句话吧。</p>
+    <% end %>
+
+    <% if @comments_total_pages > 1 %>
+      <nav class="pagination comments-pagination" aria-label="评论分页">
+        <% if @comments_page > 1 %>
+          <%= link_to "上一页",
+                article_path(@article, comments_page: @comments_page - 1, anchor: "comments"),
+                class: "pagination-link pagination-direction" %>
+        <% else %>
+          <span class="pagination-link pagination-direction is-disabled" aria-disabled="true">上一页</span>
+        <% end %>
+
+        <div class="pagination-pages">
+          <% (1..@comments_total_pages).each do |page_number| %>
+            <% if page_number == @comments_page %>
+              <span class="pagination-link is-current" aria-current="page"><%= page_number %></span>
+            <% else %>
+              <%= link_to page_number,
+                    article_path(@article, comments_page: page_number, anchor: "comments"),
+                    class: "pagination-link" %>
+            <% end %>
+          <% end %>
+        </div>
+
+        <% if @comments_page < @comments_total_pages %>
+          <%= link_to "下一页",
+                article_path(@article, comments_page: @comments_page + 1, anchor: "comments"),
+                class: "pagination-link pagination-direction" %>
+        <% else %>
+          <span class="pagination-link pagination-direction is-disabled" aria-disabled="true">下一页</span>
+        <% end %>
+      </nav>
     <% end %>
 
     <div class="comment-form-section">

@@ -16,17 +16,33 @@
     <% end %>
   </section>
 
+  <div class="article-list-summary" aria-live="polite">
+    <span class="article-list-summary-icon">✦</span>
+    <% if params[:query].present? %>
+      找到 <strong><%= @total_count %></strong> 篇相关文章
+    <% else %>
+      共收录 <strong><%= @total_count %></strong> 篇文章
+    <% end %>
+  </div>
+
   <section class="article-list" aria-label="文章列表">
     <% if @articles.any? %>
-      <% @articles.each do |article| %>
+      <% @articles.each_with_index do |article, index| %>
         <% preview_image = article_preview_image(article) %>
+        <% preview_variant = article_preview_variant(article) %>
         <% summary = article.rich_content.to_plain_text.strip.presence || article.content.to_s.strip %>
 
         <%= link_to article_path(article), class: "article-card-link" do %>
           <article class="article-card <%= "article-card--without-image" unless preview_image %>">
             <% if preview_image %>
               <div class="article-card-media">
-                <%= image_tag preview_image, alt: article.title, loading: "lazy" %>
+                <%= image_tag preview_variant,
+                      alt: article.title,
+                      loading: index.zero? ? "eager" : "lazy",
+                      decoding: "async",
+                      fetchpriority: index.zero? ? "high" : "low",
+                      width: 520,
+                      height: 360 %>
               </div>
             <% end %>
 

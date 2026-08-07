@@ -5,16 +5,16 @@ class CommentsController < ApplicationController
     @comment = @article.comments.build(comment_params)
 
     if @comment.save
-      redirect_to article_path(@article), notice: "评论发表成功！"
+      redirect_to article_path(@article, comments_page: 1, anchor: "comments"), notice: "评论发表成功！"
     else
-      redirect_to article_path(@article), alert: "评论发表失败，请填写昵称和内容！"
+      redirect_to article_path(@article, anchor: "comments"), alert: "评论发表失败，请填写昵称和内容！"
     end
   end
 
   def destroy
     @comment = @article.comments.find(params[:id])
     @comment.destroy
-    redirect_to article_path(@article), notice: "评论已删除！"
+    redirect_to article_path(@article, comments_page: 1, anchor: "comments"), notice: "评论已删除！"
   end
 
   private

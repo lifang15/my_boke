@@ -1,0 +1,20 @@
+default: &default
+  pagination:
+    web_per_page: 5
+    comments_per_page: 5
+    api_per_page: 5
+    api_max_per_page: 50
+
+  cors:
+    allowed_origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
